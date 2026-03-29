@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QR-Swift | Telegram Web App</title>
+    <title>QR-Swift V2 | TWA</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
@@ -12,129 +12,170 @@
             --bg-color: #1a1a1a;
             --container-bg: #242424;
             --text-color: #ffffff;
-            --accent-color: #248bcf; /* Bleu Telegram */
+            --accent-color: #248bcf;
             --input-bg: #333333;
-            --border-radius: 12px;
+            --border-radius: 16px;
         }
 
+        /* Reset & Base */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* Container principal */
+        /* Container Responsive */
         .app-container {
             width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            text-align: center;
+            max-width: 480px; /* Légèrement plus large pour PC */
+            margin: auto;
+            padding: 25px;
             background: var(--container-bg);
             border-radius: var(--border-radius);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
         }
 
-        h1 { font-size: 1.5rem; margin-bottom: 5px; color: var(--accent-color); }
-        p { font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px; }
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .header h1 { font-size: 1.6rem; margin: 0; color: var(--accent-color); font-weight: 800; }
 
-        /* Champs de saisie */
-        select, input, textarea {
+        /* Contôles de saisie */
+        .input-group { margin-bottom: 18px; text-align: left; }
+        label { display: block; font-size: 0.85rem; opacity: 0.7; margin-bottom: 6px; margin-left: 5px; }
+        
+        select, input[type="text"], .file-dummy {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
+            padding: 14px 16px;
             border-radius: var(--border-radius);
             border: 1px solid #444;
             background: var(--input-bg);
             color: white;
-            box-sizing: border-box;
+            font-size: 1rem;
             outline: none;
-            transition: border 0.3s;
+            transition: border-color 0.2s;
         }
 
-        input:focus { border-color: var(--accent-color); }
+        select:focus, input[type="text"]:focus { border-color: var(--accent-color); }
 
-        /* Zone d'affichage du QR Code */
-        #qrcode {
+        /* Style spécifique pour l'upload */
+        .file-input-wrapper { position: relative; overflow: hidden; display: none; /* Caché par défaut */ }
+        .file-input-wrapper input[type="file"] {
+            position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .file-dummy {
+            display: flex; align-items: center; justify-content: space-between;
+            color: #aaa; cursor: pointer;
+        }
+        .file-dummy .icon { font-size: 1.2rem; }
+
+        /* Zone QR Code Optimisée */
+        .qrcode-wrapper {
             background: white;
-            padding: 15px;
-            border-radius: 10px;
-            display: inline-block;
-            margin: 20px 0;
-            min-height: 128px;
-            min-width: 128px;
+            padding: 20px;
+            border-radius: 12px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin: 25px auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
+        #qrcode { min-height: 180px; min-width: 180px; }
+        #qrcode img { display: block; max-width: 100%; height: auto; }
 
-        /* Boutons */
-        .btn {
+        /* Bouton Canal */
+        .btn-channel {
             display: block;
             width: 100%;
             padding: 14px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.1s, opacity 0.3s;
-        }
-
-        .btn:active { transform: scale(0.98); }
-
-        .btn-channel {
             background: transparent;
             border: 2px solid var(--accent-color);
             color: var(--accent-color);
             text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
-            margin-top: 20px;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            text-align: center;
+            transition: background 0.2s, color 0.2s;
+            margin-top: 15px;
         }
+        .btn-channel:hover { background: var(--accent-color); color: white; }
 
         /* Footer */
-        .footer { font-size: 0.7rem; margin-top: 25px; opacity: 0.5; }
+        .footer { font-size: 0.75rem; margin-top: 30px; opacity: 0.4; text-align: center; }
 
-        /* Animation d'apparition */
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Media Queries pour adaptation PC */
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            .app-container { padding: 40px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="app-container fade-in">
-        <h1>QR-Swift ⚡</h1>
-        <p>Générez vos QR Codes instantanément</p>
+    <div class="app-container">
+        <div class="header">
+            <h1>QR-Swift⚡ V2</h1>
+        </div>
 
-        <select id="typeSelector" onchange="updatePlaceholder()">
-            <option value="link">🔗 Lien URL</option>
-            <option value="text">✍️ Texte simple</option>
-            <option value="file">📁 Lien vers fichier / Image</option>
-        </select>
+        <div class="input-group">
+            <label>1. Choisir le type de données</label>
+            <select id="typeSelector" onchange="switchInputMode()">
+                <option value="link">🔗 Lien URL</option>
+                <option value="text">✍️ Texte simple</option>
+                <option value="file">📁 Uploader un Fichier / Image</option>
+            </select>
+        </div>
 
-        <input type="text" id="userInput" placeholder="https://votre-lien.com" oninput="generateQR()">
+        <div class="input-group" id="textInputWrapper">
+            <label>2. Entrer le contenu</label>
+            <input type="text" id="userInput" placeholder="https://votre-lien.com" oninput="generateQR()">
+        </div>
 
-        <div id="qrcode"></div>
+        <div class="input-group file-input-wrapper" id="fileInputWrapper">
+            <label>2. Sélectionner le fichier</label>
+            <div class="file-dummy">
+                <span id="fileNameDisplay">Aucun fichier choisi</span>
+                <span class="icon">📥</span>
+            </div>
+            <input type="file" id="fileInput" onchange="handleFileUpload(this)">
+        </div>
 
-        <button class="btn" onclick="downloadQR()">📥 Télécharger l'image</button>
+        <div style="text-align:center">
+            <div class="qrcode-wrapper">
+                <div id="qrcode"></div>
+            </div>
+        </div>
 
-        <a href="https://t.me/VOTRE_CANAL" target="_blank" class="btn btn-channel">📢 Rejoindre notre Canal</a>
+        <a href="https://t.me/VOTRE_CANAL" target="_blank" class="btn-channel">📢 Notre Canal</a>
 
-        <div class="footer">Optimisé pour Telegram Web App</div>
+        <div class="footer">D-Z-D Template | Optimisé pour Telegram</div>
     </div>
 
     <script>
-        // Initialisation de Telegram WebApp
+        // --- CONFIGURATION & THÈME TWA ---
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Étendre l'application
+        tg.expand();
+        tg.ready();
         
-        // Appliquer les couleurs du thème Telegram si disponibles
+        // MainButton pour télécharger (Solution pour corriger TWA)
+        tg.MainButton.setText("📥 Télécharger le QR Code");
+        tg.MainButton.textColor = "#ffffff";
+        tg.MainButton.color = tg.themeParams.button_color || "#248bcf";
+        tg.MainButton.onClick(downloadQR);
+
+        // Adaptation du thème
         if (tg.themeParams.bg_color) {
             document.documentElement.style.setProperty('--bg-color', tg.themeParams.bg_color);
             document.documentElement.style.setProperty('--container-bg', tg.themeParams.secondary_bg_color || '#242424');
@@ -142,9 +183,10 @@
             document.documentElement.style.setProperty('--accent-color', tg.themeParams.button_color);
         }
 
-        // Variable globale pour le QR Code
-        let qrcodeInstance = new QRCode(document.getElementById("qrcode"), {
-            text: "https://t.me/VOTRE_CANAL",
+        // --- GESTION QR CODE ---
+        let currentQRText = "QR-Swift V2";
+        const qrcodeInstance = new QRCode(document.getElementById("qrcode"), {
+            text: currentQRText,
             width: 180,
             height: 180,
             colorDark : "#000000",
@@ -152,39 +194,91 @@
             correctLevel : QRCode.CorrectLevel.H
         });
 
-        function updatePlaceholder() {
+        function updateQR(text) {
+            currentQRText = text;
+            if (text.trim() === "") {
+                qrcodeInstance.clear();
+                tg.MainButton.hide();
+            } else {
+                qrcodeInstance.makeCode(text);
+                tg.MainButton.show(); // Afficher le bouton quand un QR existe
+            }
+        }
+
+        // --- GESTION DES ENTRÉES ---
+        function switchInputMode() {
             const type = document.getElementById('typeSelector').value;
+            const textWrapper = document.getElementById('textInputWrapper');
+            const fileWrapper = document.getElementById('fileInputWrapper');
             const input = document.getElementById('userInput');
-            if(type === 'link') input.placeholder = "https://votre-lien.com";
-            else if(type === 'text') input.placeholder = "Écrivez votre message...";
-            else if(type === 'file') input.placeholder = "Lien de l'image (URL)...";
-            generateQR();
+
+            if(type === 'file') {
+                textWrapper.style.display = 'none';
+                fileWrapper.style.display = 'block';
+                input.value = "";
+                updateQR(""); // Reset QR
+            } else {
+                textWrapper.style.display = 'block';
+                fileWrapper.style.display = 'none';
+                input.placeholder = (type === 'link') ? "https://votre-lien.com" : "Écrivez votre message...";
+                generateQR();
+            }
         }
 
         function generateQR() {
             const val = document.getElementById('userInput').value;
-            if (val.trim() === "") {
-                qrcodeInstance.clear();
-            } else {
-                qrcodeInstance.makeCode(val);
+            updateQR(val);
+        }
+
+        // --- GESTION UPLOAD (Nouveau V2) ---
+        function handleFileUpload(input) {
+            const fileNameDisplay = document.getElementById('fileNameDisplay');
+            if(input.files && input.files[0]) {
+                const file = input.files[0];
+                fileNameDisplay.innerText = file.name;
+                fileNameDisplay.style.color = "white";
+
+                // Génère un QR avec les métadonnées du fichier (Simulation upload)
+                const fileInfoStr = `Fichier: ${file.name} | Taille: ${Math.round(file.size/1024)} KB | Type: ${file.type}`;
+                updateQR(fileInfoStr);
             }
         }
 
+        // --- CORRECTIF TÉLÉCHARGEMENT (Nouveau V2) ---
         function downloadQR() {
             const img = document.querySelector('#qrcode img');
             if (img) {
+                // SOLUTION MOBILE : Forcer l'ouverture de l'image dans le navigateur externe
+                // C'est la seule méthode fiable pour que Telegram propose "Enregistrer" sur mobile.
+                const blob = dataURLtoBlob(img.src);
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // Utiliser l'API Telegram pour ouvrir le lien en dehors de la TWA
+                tg.openLink(img.src, {try_instant_view: false});
+                
+                // Backup pour PC : méthode classique
                 const link = document.createElement('a');
                 link.download = 'qrcode-swift.png';
                 link.href = img.src;
                 link.click();
+
+                tg.showAlert("L'image a été ouverte. Maintenez le doigt dessus pour l'enregistrer dans votre galerie.");
             } else {
-                tg.showAlert("Veuillez saisir une valeur pour générer un QR Code.");
+                tg.showAlert("Générez d'abord un QR Code.");
             }
         }
 
-        // Animation de chargement
+        // Utilitaire pour le correctif
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+            return new Blob([u8arr], {type:mime});
+        }
+
+        // Initialisation
         window.onload = () => {
-            console.log("App Ready");
+            if(currentQRText) tg.MainButton.show();
         };
     </script>
 </body>
