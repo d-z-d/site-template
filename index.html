@@ -3,106 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OG Market WebApp</title>
+    <title>OGzy V2 - Premium Market</title>
     <style>
         :root {
-            --bg: #0f0f0f;
-            --card: #1a1a1a;
-            --accent: #ff3e3e; /* Couleur MW de ton image */
+            --bg: #050505;
+            --card: #121212;
+            --accent: #ff3e3e;
             --text: #ffffff;
-            --dim: #888888;
-            --border: #2b2b2b;
+            --dim: #a0a0a0;
+            --border: #222;
+            --success: #00ff88;
         }
 
         body {
             background: var(--bg);
             color: var(--text);
-            font-family: 'Inter', -apple-system, sans-serif;
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
+            font-family: -apple-system, system-ui, sans-serif;
+            margin: 0; padding: 0;
+            padding-bottom: 80px;
         }
 
-        /* Header style image */
-        .market-title { font-size: 22px; font-weight: 800; margin-bottom: 25px; }
-        .market-title span { color: var(--accent); }
+        /* --- UI COMPONENTS --- */
+        .container { max-width: 450px; margin: 0 auto; padding: 20px; }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 35px; font-weight: 900; margin: 0; letter-spacing: -1.5px; }
+        .header h1 span { color: var(--accent); }
+        .header p { color: var(--dim); font-size: 13px; margin-top: 5px; }
 
-        /* Stats Boxes */
-        .stats-row { display: flex; gap: 10px; width: 100%; max-width: 400px; margin-bottom: 20px; }
-        .stat-box { 
-            background: var(--card); flex: 1; padding: 12px 15px; 
-            border-radius: 10px; border: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+        .stat-card { 
+            background: var(--card); border: 1px solid var(--border); 
+            padding: 15px; border-radius: 12px; text-align: center;
         }
-        .label { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .val { font-weight: bold; font-size: 14px; }
-        .val.active { color: #4CAF50; }
+        .stat-card small { color: var(--dim); font-size: 10px; text-transform: uppercase; display: block; }
+        .stat-card b { font-size: 18px; color: var(--accent); }
 
-        /* Filtres horizontaux */
-        .filters { 
-            display: flex; gap: 8px; width: 100%; max-width: 400px; 
-            overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;
-        }
-        .filter-btn {
+        /* --- ITEMS & BIDDING --- */
+        .item {
             background: var(--card); border: 1px solid var(--border);
-            color: var(--text); padding: 7px 16px; border-radius: 8px;
-            font-size: 13px; cursor: pointer; white-space: nowrap;
+            border-radius: 16px; padding: 20px; margin-bottom: 15px;
+            transition: transform 0.2s;
         }
-        .filter-btn.active { background: #fff; color: #000; font-weight: bold; border: none; }
+        .item-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .item-name { font-size: 20px; font-weight: bold; }
+        .item-type { font-size: 10px; background: var(--border); padding: 3px 8px; border-radius: 5px; color: var(--dim); }
+        
+        .bid-info { display: flex; gap: 15px; margin: 15px 0; padding: 10px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; }
+        .bid-box { display: flex; flex-direction: column; }
+        .bid-label { font-size: 10px; color: var(--dim); text-transform: uppercase; }
+        .bid-val { font-weight: bold; font-size: 15px; }
+        .bid-val.co { color: var(--success); }
 
-        /* Liste des Usernames */
-        .items-grid { width: 100%; max-width: 400px; margin-top: 20px; }
-        .item-card {
-            background: var(--card); border: 1px solid var(--border);
-            padding: 15px; border-radius: 12px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: bold; font-size: 16px; }
-        .user-price { color: var(--accent); font-size: 14px; margin-top: 4px; }
-        .buy-btn { 
-            background: #fff; color: #000; border: none; 
-            padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 12px;
+        .buy-btn {
+            width: 100%; background: #fff; color: #000; border: none;
+            padding: 12px; border-radius: 8px; font-weight: 800;
+            cursor: pointer; font-size: 14px;
         }
 
-        /* Nav Footer */
-        .footer {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--bg); border-top: 1px solid var(--border);
+        /* --- ADMIN PANEL --- */
+        #admin-auth, #admin-panel { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg); z-index: 1000; display: none; padding: 20px; box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; color: var(--dim); margin-bottom: 5px; }
+        input, select, textarea { 
+            width: 100%; background: #1a1a1a; border: 1px solid var(--border); 
+            color: #fff; padding: 12px; border-radius: 8px; box-sizing: border-box;
+        }
+        .btn-admin { background: var(--accent); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; }
+
+        /* --- FOOTER NAV --- */
+        .nav {
+            position: fixed; bottom: 0; width: 100%; background: rgba(5,5,5,0.9);
+            backdrop-filter: blur(10px); border-top: 1px solid var(--border);
             display: flex; justify-content: space-around; padding: 15px 0;
-            font-size: 11px; color: var(--dim); text-transform: uppercase;
         }
+        .nav-item { color: var(--dim); font-size: 12px; text-decoration: none; cursor: pointer; }
+        .nav-item.active { color: #fff; font-weight: bold; border-bottom: 2px solid var(--accent); }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div class="market-title"><span>#OG</span> Market</div>
-
-    <div class="stats-row">
-        <div class="stat-box"><span class="label">Stock</span><span class="val" style="color:var(--accent)">14</span></div>
-        <div class="stat-box"><span class="label">Status</span><span class="val active">Active</span></div>
+<div class="container" id="main-view">
+    <div class="header">
+        <h1>OG<span>zy</span></h1>
+        <p>Marketplace de Usernames & Boost Premium</p>
     </div>
 
-    <div class="filters">
-        <button class="filter-btn active">All</button>
-        <button class="filter-btn">3c/L</button>
-        <button class="filter-btn">4c/L</button>
-        <button class="filter-btn">Double/Triple</button>
+    <div class="stats-grid">
+        <div class="stat-card"><small>Items en Stock</small><b id="count-stock">0</b></div>
+        <div class="stat-card"><small>Status</small><b style="color:var(--success)">Online</b></div>
     </div>
 
-    <div class="items-grid">
-        <div class="item-card">
-            <div class="user-info">
-                <span class="user-name">@x7q</span>
-                <span class="user-price">150.00$</span>
-            </div>
-            <button class="buy-btn">BUY</button>
+    <div id="items-container">
         </div>
-    </div>
+</div>
 
-    <div class="footer">
-        <span style="color: #fff; border-bottom: 2px solid #fff; padding-bottom: 5px;">Store</span>
-        <span>Cart (0)</span>
+<div class="nav">
+    <div class="nav-item active" onclick="showView('main')">Shop</div>
+    <div class="nav-item" onclick="showContact()">Contact</div>
+    <div class="nav-item" onclick="showAdminAuth()">Admin</div>
+</div>
+
+<div id="admin-auth">
+    <h2>Connexion Admin</h2>
+    <div class="input-group">
+        <label>User</label>
+        <input type="text" id="adm-user">
     </div>
+    <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="adm-pass">
+    </div>
+    <button class="btn-admin" onclick="login()">Login</button>
+    <button onclick="hideAdmin()" style="background:none; border:none; color:var(--dim); width:100%; margin-top:15px;">Retour</button>
+</div>
+
+<div id="admin-panel">
+    <h2>Panel OGzy</h2>
+    <button class="btn-admin" style="background:#444;" onclick="hideAdmin()">Fermer Panel</button>
+    <hr style="border:1px solid var(--border); margin: 20px 0;">
+    
+    <h3>Ajouter un Item</h3>
+    <input type="text" id="p-name" placeholder="Nom (ex: @z7q)">
+    <input type="text" id="p-type" placeholder="Type (ex: TikTok / 3L)">
+    <input type="text" id="p-bin" placeholder="Prix BIN (ex: 150$)">
+    <input type="text" id="p-co" placeholder="Current Offer (C/O)">
+    <button class="btn-admin" onclick="addItem()">Ajouter au Stock</button>
+
+    <div id="admin-list" style="margin-top:30px;">
+        </div>
+</div>
+
+<script>
+    // --- DATABASE LOCALE ---
+    let items = JSON.parse(localStorage.getItem('ogzy_items')) || [
+        { name: "@ogzy", type: "TikTok 4L", bin: "200$", co: "120$" }
+    ];
+
+    function save() {
+        localStorage.setItem('ogzy_items', JSON.stringify(items));
+        render();
+    }
+
+    // --- NAVIGATION ---
+    function showView(view) {
+        document.getElementById('admin-auth').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'none';
+    }
+
+    function showAdminAuth() {
+        document.getElementById('admin-auth').style.display = 'block';
+    }
+
+    function hideAdmin() {
+        document.getElementById('admin-auth').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'none';
+    }
+
+    function showContact() {
+        window.open('https://t.me/TON_PSEUDO', '_blank'); // Remplace par ton pseudo
+    }
+
+    // --- AUTH ---
+    function login() {
+        const u = document.getElementById('adm-user').value;
+        const p = document.getElementById('adm-pass').value;
+        if(u === "zg" && p === "zg") {
+            document.getElementById('admin-auth').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            renderAdmin();
+        } else {
+            alert("Identifiants incorrects");
+        }
+    }
+
+    // --- CRUD ---
+    function addItem() {
+        const name = document.getElementById('p-name').value;
+        const type = document.getElementById('p-type').value;
+        const bin = document.getElementById('p-bin').value;
+        const co = document.getElementById('p-co').value;
+
+        if(name && bin) {
+            items.push({ name, type, bin, co });
+            save();
+            renderAdmin();
+            // Clear inputs
+            document.getElementById('p-name').value = '';
+            alert("Item ajouté !");
+        }
+    }
+
+    function deleteItem(index) {
+        items.splice(index, 1);
+        save();
+        renderAdmin();
+    }
+
+    // --- RENDERING ---
+    function render() {
+        const container = document.getElementById('items-container');
+        document.getElementById('count-stock').innerText = items.length;
+        container.innerHTML = '';
+
+        items.forEach((item, index) => {
+            container.innerHTML += `
+                <div class="item">
+                    <div class="item-header">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-type">${item.type}</span>
+                    </div>
+                    <div class="bid-info">
+                        <div class="bid-box">
+                            <span class="bid-label">BIN (Achat Immédiat)</span>
+                            <span class="bid-val" style="color:var(--accent)">${item.bin}</span>
+                        </div>
+                        <div class="bid-box">
+                            <span class="bid-label">Current Offer (C/O)</span>
+                            <span class="bid-val co">${item.co || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn" onclick="window.open('https://t.me/TON_PSEUDO?text=Interessé par ${item.name}')">CONTACTER</button>
+                </div>
+            `;
+        });
+    }
+
+    function renderAdmin() {
+        const list = document.getElementById('admin-list');
+        list.innerHTML = '<h3>Gestion du Stock</h3>';
+        items.forEach((item, index) => {
+            list.innerHTML += `
+                <div style="background:#222; padding:10px; margin-bottom:5px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>${item.name} (${item.bin})</span>
+                    <button onclick="deleteItem(${index})" style="background:red; border:none; color:white; padding:5px; border-radius:5px;">Suppr</button>
+                </div>
+            `;
+        });
+    }
+
+    // Initial load
+    render();
+</script>
 
 </body>
 </html>
