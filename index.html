@@ -2,147 +2,190 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OGzy V2.1 - Master Market</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QR-Swift | Telegram Web App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
-        :root { --bg: #050505; --card: #121212; --accent: #ff3e3e; --text: #ffffff; --dim: #a0a0a0; --border: #222; --success: #00ff88; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, system-ui, sans-serif; margin: 0; padding-bottom: 80px; }
-        .container { max-width: 450px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 35px; font-weight: 900; margin: 0; letter-spacing: -1.5px; }
-        .header h1 span { color: var(--accent); }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
-        .stat-card { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 12px; text-align: center; }
-        .stat-card small { color: var(--dim); font-size: 10px; text-transform: uppercase; display: block; }
-        .item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
-        .item-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .item-name { font-size: 20px; font-weight: bold; color: #fff; }
-        .item-type { font-size: 10px; background: var(--border); padding: 3px 8px; border-radius: 5px; color: var(--dim); }
-        .bid-info { display: flex; gap: 15px; margin: 15px 0; padding: 10px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; }
-        .bid-label { font-size: 10px; color: var(--dim); text-transform: uppercase; display:block; }
-        .bid-val { font-weight: bold; font-size: 15px; }
-        .buy-btn { width: 100%; background: #fff; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-        
-        /* ADMIN UI */
-        #admin-auth, #admin-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        input { width: 100%; background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box;}
-        .btn-admin { background: var(--accent); color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor:pointer; }
-        #export-area { width: 100%; height: 100px; background: #000; color: #00ff88; font-family: monospace; font-size: 10px; margin-top: 10px; padding: 10px; border: 1px dashed #444; display:none; box-sizing: border-box;}
+        :root {
+            --bg-color: #1a1a1a;
+            --container-bg: #242424;
+            --text-color: #ffffff;
+            --accent-color: #248bcf; /* Bleu Telegram */
+            --input-bg: #333333;
+            --border-radius: 12px;
+        }
 
-        .nav { position: fixed; bottom: 0; width: 100%; background: rgba(5,5,5,0.9); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 15px 0; }
-        .nav-item { color: var(--dim); font-size: 12px; cursor: pointer; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Container principal */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            text-align: center;
+            background: var(--container-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin: 10px;
+        }
+
+        h1 { font-size: 1.5rem; margin-bottom: 5px; color: var(--accent-color); }
+        p { font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px; }
+
+        /* Champs de saisie */
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #444;
+            background: var(--input-bg);
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus { border-color: var(--accent-color); }
+
+        /* Zone d'affichage du QR Code */
+        #qrcode {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 20px 0;
+            min-height: 128px;
+            min-width: 128px;
+        }
+
+        /* Boutons */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.1s, opacity 0.3s;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-channel {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+            margin-top: 20px;
+        }
+
+        /* Footer */
+        .footer { font-size: 0.7rem; margin-top: 25px; opacity: 0.5; }
+
+        /* Animation d'apparition */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="container" id="main-view">
-    <div class="header"><h1>OG<span>zy</span></h1><p>Marketplace Premium</p></div>
-    <div class="stats-grid">
-        <div class="stat-card"><small>Stock</small><b id="count-stock">0</b></div>
-        <div class="stat-card"><small>Status</small><b style="color:var(--success)">Online</b></div>
+    <div class="app-container fade-in">
+        <h1>QR-Swift ⚡</h1>
+        <p>Générez vos QR Codes instantanément</p>
+
+        <select id="typeSelector" onchange="updatePlaceholder()">
+            <option value="link">🔗 Lien URL</option>
+            <option value="text">✍️ Texte simple</option>
+            <option value="file">📁 Lien vers fichier / Image</option>
+        </select>
+
+        <input type="text" id="userInput" placeholder="https://votre-lien.com" oninput="generateQR()">
+
+        <div id="qrcode"></div>
+
+        <button class="btn" onclick="downloadQR()">📥 Télécharger l'image</button>
+
+        <a href="https://t.me/VOTRE_CANAL" target="_blank" class="btn btn-channel">📢 Rejoindre notre Canal</a>
+
+        <div class="footer">Optimisé pour Telegram Web App</div>
     </div>
-    <div id="items-container"></div>
-</div>
 
-<div class="nav">
-    <div class="nav-item" onclick="hideAdmin()">Shop</div>
-    <div class="nav-item" onclick="window.open('https://t.me/TON_PSEUDO')">Contact</div>
-    <div class="nav-item" onclick="showAdminAuth()">Admin</div>
-</div>
-
-<div id="admin-auth">
-    <h2>Access Control</h2>
-    <input type="text" id="adm-user" placeholder="User">
-    <input type="password" id="adm-pass" placeholder="Password">
-    <button class="btn-admin" onclick="login()">Login</button>
-    <button onclick="hideAdmin()" style="background:none; border:none; color:var(--dim); width:100%; margin-top:20px;">Retour</button>
-</div>
-
-<div id="admin-panel">
-    <h2>OGzy Panel</h2>
-    <button class="btn-admin" style="background:#444;" onclick="hideAdmin()">Quitter</button>
-    <div style="margin-top:20px;">
-        <input type="text" id="p-name" placeholder="@username">
-        <input type="text" id="p-type" placeholder="TikTok / IG / 3L">
-        <input type="text" id="p-bin" placeholder="BIN (ex: 200$)">
-        <input type="text" id="p-co" placeholder="C/O (ex: 120$)">
-        <button class="btn-admin" onclick="addItem()">Ajouter au Stock</button>
-    </div>
-    
-    <button class="btn-admin" style="background:var(--success); color:#000;" onclick="exportData()">💾 GENERER CODE GITHUB</button>
-    <p style="font-size:10px; color:var(--dim)">Clique ici pour récupérer le code à coller sur GitHub.</p>
-    <textarea id="export-area" readonly></textarea>
-
-    <div id="admin-list" style="margin-top:20px;"></div>
-</div>
-
-<script>
-    // --- DATABASE (MODIFIE CETTE LISTE CI-DESSOUS POUR TES CLIENTS) ---
-    let items = [
-        { name: "@ogzy", type: "TikTok 4L", bin: "150$", co: "90$" },
-        { name: "@star", type: "IG 4L", bin: "300$", co: "210$" }
-    ];
-
-    function render() {
-        const container = document.getElementById('items-container');
-        document.getElementById('count-stock').innerText = items.length;
-        container.innerHTML = '';
-        items.forEach((item, index) => {
-            container.innerHTML += `
-                <div class="item">
-                    <div class="item-header"><span class="item-name">${item.name}</span><span class="item-type">${item.type}</span></div>
-                    <div class="bid-info">
-                        <div><span class="bid-label">BIN</span><span class="bid-val" style="color:var(--accent)">${item.bin}</span></div>
-                        <div><span class="bid-label">C/O</span><span class="bid-val" style="color:var(--success)">${item.co}</span></div>
-                    </div>
-                    <button class="buy-btn" onclick="window.open('https://t.me/TON_PSEUDO?text=Buy ${item.name}')">ACHETER</button>
-                </div>`;
-        });
-    }
-
-    function login() {
-        if(document.getElementById('adm-user').value === "zg" && document.getElementById('adm-pass').value === "zg") {
-            document.getElementById('admin-auth').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            renderAdmin();
+    <script>
+        // Initialisation de Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Étendre l'application
+        
+        // Appliquer les couleurs du thème Telegram si disponibles
+        if (tg.themeParams.bg_color) {
+            document.documentElement.style.setProperty('--bg-color', tg.themeParams.bg_color);
+            document.documentElement.style.setProperty('--container-bg', tg.themeParams.secondary_bg_color || '#242424');
+            document.documentElement.style.setProperty('--text-color', tg.themeParams.text_color);
+            document.documentElement.style.setProperty('--accent-color', tg.themeParams.button_color);
         }
-    }
 
-    function addItem() {
-        items.push({
-            name: document.getElementById('p-name').value,
-            type: document.getElementById('p-type').value,
-            bin: document.getElementById('p-bin').value,
-            co: document.getElementById('p-co').value
+        // Variable globale pour le QR Code
+        let qrcodeInstance = new QRCode(document.getElementById("qrcode"), {
+            text: "https://t.me/VOTRE_CANAL",
+            width: 180,
+            height: 180,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
         });
-        render(); renderAdmin();
-    }
 
-    function deleteItem(i) { items.splice(i, 1); render(); renderAdmin(); }
+        function updatePlaceholder() {
+            const type = document.getElementById('typeSelector').value;
+            const input = document.getElementById('userInput');
+            if(type === 'link') input.placeholder = "https://votre-lien.com";
+            else if(type === 'text') input.placeholder = "Écrivez votre message...";
+            else if(type === 'file') input.placeholder = "Lien de l'image (URL)...";
+            generateQR();
+        }
 
-    function exportData() {
-        const area = document.getElementById('export-area');
-        area.style.display = "block";
-        area.value = "let items = " + JSON.stringify(items, null, 4) + ";";
-        area.select();
-        alert("Code généré ! Copie la ligne verte et remplace-la dans ton fichier GitHub.");
-    }
+        function generateQR() {
+            const val = document.getElementById('userInput').value;
+            if (val.trim() === "") {
+                qrcodeInstance.clear();
+            } else {
+                qrcodeInstance.makeCode(val);
+            }
+        }
 
-    function renderAdmin() {
-        const list = document.getElementById('admin-list');
-        list.innerHTML = '<hr style="border:1px solid #222; margin:20px 0;">';
-        items.forEach((item, index) => {
-            list.innerHTML += `<div style="background:#222; padding:10px; margin-bottom:5px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:12px;">${item.name}</span>
-                <button onclick="deleteItem(${index})" style="background:red; border:none; color:white; padding:5px; border-radius:5px; font-size:10px;">Suppr</button>
-            </div>`;
-        });
-    }
+        function downloadQR() {
+            const img = document.querySelector('#qrcode img');
+            if (img) {
+                const link = document.createElement('a');
+                link.download = 'qrcode-swift.png';
+                link.href = img.src;
+                link.click();
+            } else {
+                tg.showAlert("Veuillez saisir une valeur pour générer un QR Code.");
+            }
+        }
 
-    function showAdminAuth() { document.getElementById('admin-auth').style.display = 'block'; }
-    function hideAdmin() { document.getElementById('admin-auth').style.display = 'none'; document.getElementById('admin-panel').style.display = 'none'; }
-
-    render();
-</script>
+        // Animation de chargement
+        window.onload = () => {
+            console.log("App Ready");
+        };
+    </script>
 </body>
 </html>
